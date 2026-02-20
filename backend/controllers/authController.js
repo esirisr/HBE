@@ -25,7 +25,7 @@ export const register = async (req, res) => {
       name: name.trim(),
       email: email.toLowerCase().trim(),
       password: hashedPassword,
-      role: role || 'client', // Updated default role
+      role: role || 'client', // Default role is 'client'
       phone: phone || '',
       location: location ? location.toLowerCase().trim() : 'not specified',
       skills: role === 'pro' && skills ? [skills] : [] // Only store skills for pros
@@ -39,6 +39,7 @@ export const register = async (req, res) => {
     });
 
   } catch (error) {
+    console.error("Registration Error:", error);
     res.status(500).json({ success: false, message: "Registration failed", error: error.message });
   }
 };
@@ -53,7 +54,7 @@ export const login = async (req, res) => {
     // 1️⃣ Find user
     const user = await User.findOne({ email: email.toLowerCase() });
 
-    // 2️⃣ Validate password
+    // 2️⃣ Validate user existence and password
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(400).json({ success: false, message: "Invalid credentials" });
     }
@@ -64,28 +65,30 @@ export const login = async (req, res) => {
       return res.status(500).json({ success: false, message: "Server configuration error" });
     }
 
-    // 4️⃣ Sign token
+    // 4️⃣ Sign token with payload (id + role)
     const token = jwt.sign(
-      { id: user._id, role: user.role }, // Payload includes id + role
+      { id: user._id, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: '7d' } // Adjust expiration as needed
+      { expiresIn: '7d' } // You can adjust expiration as needed
     );
 
     // 5️⃣ Send response
-    res.json({ 
+    res.status(200).json({ 
       success: true,
       token, 
       role: user.role, 
       user: { 
-        id: user._id, 
-        name: user.name, 
-        location: user.location,
+        id: user._id,
+        name: user.name,
         email: user.email,
-        skills: user.skills || []
-      } 
+        location: user.location,
+        skills: user.skills || [],
+        role: user.role
+      }
     });
 
   } catch (error) {
+    console.error("Login Error:", error);
     res.status(500).json({ success: false, message: "Login failed", error: error.message });
   }
 };
