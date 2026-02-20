@@ -17,7 +17,7 @@ const app = express();
 // ---------- SECURITY + CORS ----------
 app.use(cors({
   origin: [
-    "http://localhost:5173", // Vite local
+    https://hfe-production.up.railway.app, // Vite local
     "http://localhost:3000", // CRA local
     process.env.FRONTEND_URL // Railway frontend
   ],
