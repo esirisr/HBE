@@ -15,16 +15,7 @@ connectDB();
 const app = express();
 
 // ---------- SECURITY + CORS ----------
-app.use(cors({
-  origin: [
-    https://hfe-production.up.railway.app, // Vite local
-    "http://localhost:3000", // CRA local
-    process.env.FRONTEND_URL // Railway frontend
-  ],
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
+app.use(cors());
 
 app.use(express.json());
 
