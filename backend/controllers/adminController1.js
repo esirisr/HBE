@@ -8,7 +8,6 @@ export const getAdminDashboardData = async (req, res) => {
     const role = req.user.role;
     const userId = req.user.id;
 
-    // requester (for location)
     const currentUser = await User.findById(userId);
     if (!currentUser) {
       return res.status(404).json({ success: false, message: "User not found" });
@@ -16,13 +15,12 @@ export const getAdminDashboardData = async (req, res) => {
 
     const userLocation = currentUser.location?.trim().toLowerCase() || '';
 
-    // all pros (exclude master admin if needed)
     const allPros = await User.find({
       role: 'pro',
       email: { $ne: 'himiloone@gmail.com' }
-    }).select('-password').lean();
+    }).lean();
 
-    // ADMIN VIEW (no filtering)
+    // ADMIN VIEW
     if (role === 'admin') {
       return res.json({
         success: true,
@@ -36,21 +34,25 @@ export const getAdminDashboardData = async (req, res) => {
       });
     }
 
-    // CLIENT VIEW (location + privacy)
-    const matchedPros = allPros.filter(p => {
-      const isVerified = p.isVerified === true || String(p.isVerified) === 'true';
-      const isSuspended = p.isSuspended === true || String(p.isSuspended) === 'true';
-      const proLocation = p.location?.trim().toLowerCase() || '';
+    // CLIENT VIEW (location match + privacy)
+    const matchedPros = allPros
+      .filter(p => {
+        const isVerified = p.isVerified === true || String(p.isVerified) === 'true';
+        const isSuspended = p.isSuspended === true || String(p.isSuspended) === 'true';
+        const proLocation = p.location?.trim().toLowerCase() || '';
 
-      return (
-        isVerified &&
-        !isSuspended &&
-        proLocation === userLocation
-      );
-    }).map(p => {
-      delete p.phone; // hide phone for clients
-      return p;
-    });
+        return isVerified && !isSuspended && proLocation === userLocation;
+      })
+      .map(p => ({
+        _id: p._id,
+        name: p.name,
+        email: p.email,
+        location: p.location,
+        skills: p.skills,
+        rating: p.rating,
+        reviewCount: p.reviewCount
+        // phone removed
+      }));
 
     res.json({ success: true, allPros: matchedPros });
 
