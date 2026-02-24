@@ -8,35 +8,42 @@ import authRoutes from './routes/authRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js'; 
 import userRoutes from './routes/userRoutes.js'; 
-import proRoutes from './routes/proRoutes.js'; // 1. ADD THIS IMPORT
-import analyticsRoutes from './routes/analyticsRoutes.js'; // 1. ADD THIS IMPORT
-
-
+import proRoutes from './routes/proRoutes.js';
+import analyticsRoutes from './routes/analyticsRoutes.js';
 
 dotenv.config();
 const app = express();
 
+// 1. UPDATED ALLOWED ORIGINS
 const allowedOrigins = [
-  "http://localhost:5173",          // Local development
-  "https://hfe.up.railway.app"     // Production frontend
+  "http://localhost:5173",                 // Local development
+  "https://hfe.up.railway.app",            // Previous production URL
+  "https://hfe-production.up.railway.app", // CURRENT production URL (from your error)
+  process.env.FRONTEND_URL                 // Best practice: Set this in Railway Variables
 ];
+
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl requests)
+      // Allow requests with no origin (like mobile apps or curl)
       if (!origin) return callback(null, true);
       
-      if (allowedOrigins.indexOf(origin) !== -1) {
+      if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
+        console.error(`CORS Error: Origin ${origin} not allowed`);
         callback(new Error('Not allowed by CORS'));
       }
     },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
   })
 );
+
 app.use(express.json());
 
+// Database Connection
 connectDB();
 
 // Mounting Routes
@@ -45,7 +52,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/admin/analytics', analyticsRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/users', userRoutes); 
-app.use('/api/pros', proRoutes); // 2. ADD THIS MOUNTING LINE
+app.use('/api/pros', proRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
