@@ -18,7 +18,7 @@ const app = express();
 
 const allowedOrigins = [
   "http://localhost:5173",          // Local development
-  "https://myfe.up.railway.app"     // Production frontend
+  "https://hfe.up.railway.app"     // Production frontend
 ];
 app.use(
   cors({
