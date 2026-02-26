@@ -19,9 +19,8 @@ const app = express();
 // Ensure these match your frontend URLs exactly (no trailing slashes)
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://hfe.up.railway.app",
   "https://hfe-production.up.railway.app",
-  "https://mybe.up.railway.app" // Adding this just in case
+
 ];
 
 // 2. IMPROVED CORS CONFIGURATION
