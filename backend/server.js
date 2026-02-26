@@ -15,23 +15,26 @@ dotenv.config();
 
 const app = express();
 
-// 1. LIST OF ALLOWED ORIGINS (No trailing slashes)
+// 1. UPDATED ALLOWED ORIGINS
+// Ensure these match your frontend URLs exactly (no trailing slashes)
 const allowedOrigins = [
   "http://localhost:5173",
   "https://hfe.up.railway.app",
-  "https://hfe-production.up.railway.app"
+  "https://hfe-production.up.railway.app",
+  "https://mybe.up.railway.app" // Adding this just in case
 ];
 
-// 2. APPLY CORS FIRST (Before any other middleware or routes)
+// 2. IMPROVED CORS CONFIGURATION
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl, or Postman)
+    // Allow requests with no origin (like mobile apps, Postman, or curl)
     if (!origin) return callback(null, true);
     
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      console.error(`Blocked by CORS: ${origin}`);
+      // This will show up in your Railway "Logs" tab so you can see what failed
+      console.error(`CORS Blocked: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -41,17 +44,12 @@ app.use(cors({
   optionsSuccessStatus: 200
 }));
 
-// 3. EXPLICIT PREFLIGHT HANDLER
-// This ensures that any OPTIONS request is immediately answered with a 200 OK
-app.options('*', cors());
-
-// 4. OTHER MIDDLEWARE
+// 3. MIDDLEWARE
 app.use(express.json());
 
-// 5. DATABASE CONNECTION
+// 4. DATABASE & ROUTES
 connectDB();
 
-// 6. MOUNTING ROUTES
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin/analytics', analyticsRoutes);
