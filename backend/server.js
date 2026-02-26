@@ -20,7 +20,6 @@ const app = express();
 ===================================================== */
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://hfe.up.railway.app",
   "https://hfe-production.up.railway.app"
 ];
 
