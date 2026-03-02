@@ -20,7 +20,9 @@ const app = express();
 ===================================================== */
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://hfe-production.up.railway.app"
+  "https://hfe-production.up.railway.app",
+   "https://target-fe-production.up.railway.app",
+   "https://myfe.up.railway.app"
 ];
 
 /* =====================================================
